@@ -1,8 +1,5 @@
 package tools.mikandi.dev.library;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -12,8 +9,6 @@ import com.saguarodigital.returnable.defaultimpl.JSONResponse;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
@@ -83,7 +78,6 @@ public class KandiLibs {
 	 *  http://tools.mikandi.com/confluence/display/KANDI/KandiLibs+Documentation
 	 * 
 	 * and i (Mike, the library developer) can be reached at: kandilibs@mikandi.com
-	 * or mike@mikandi.com
 	 * 
 	 * I encourage you too reach out if you have any trouble and more importantly 
 	 * if you could recommend any improvements, or any features that as developers, would
@@ -360,7 +354,7 @@ public class KandiLibs {
 			if (debug) Log.i("checking token", "none from lr");
 			}
 		}
-		try {
+		
 		requestPurchaseHistory(uio, new onPurchaseHistoryListener() {
 			
 			@Override
@@ -383,12 +377,7 @@ public class KandiLibs {
 			}
 		});
 		
-		if (debug) Log.i("Token Checking "  , "Token :" + token + " is : " + ((getOwned() == true) ? " purchased " : " not purchased ")); 
-		
-		} catch (Exception E) { 
-			
-		}
-		
+		Log.i("Token Checking "  , "Token :" + token + " is : " + ((getOwned() == true) ? " purchased " : " not purchased ")); 
 		return getOwned();
 	}
 	
@@ -445,8 +434,10 @@ public class KandiLibs {
 			List<String> mTokens = null;
 									
 			if (jsonResponse != null) {
+				
+				
 			
-				if (debug) Log.i("Server response from get list" , "" + jsonResponse.getCode());
+			if (debug) Log.i("Server response from get list" , "" + jsonResponse.getCode());
 		
 			if (jsonResponse.getCode() == 401) { 
 				sPurchaseHistory.onNoPurchases();
@@ -646,19 +637,6 @@ public class KandiLibs {
 	}
 	private static  boolean getOwned() { 
 		return ownedBoolean;
-	}
-	
-	public boolean isConnectedToNetwork(Context context) { 
-			boolean ret = false;
-			
-			ConnectivityManager cm =
-			        (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-			 
-			NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-			ret = activeNetwork != null &&
-			                      activeNetwork.isConnectedOrConnecting();
-			
-			return ret;
 	}
 	// -------------------------------------------------End Random Functions ---------------------------		
 }

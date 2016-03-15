@@ -30,10 +30,6 @@ public class LoginAsyncTask extends JSONAsyncTask<UserLoginReturnable>
 
 	protected void onPostExecute(JSONResponse<UserLoginReturnable> result)
 	{
-		if (result == null) { 
-			for (final OnLoginResultListener listener : mListeners) listener.onLoginFailed(-1);
-		}
-		
 		final int resultCode = result.getCode();
 		
 		if (resultCode == 493 || resultCode == 492) { 

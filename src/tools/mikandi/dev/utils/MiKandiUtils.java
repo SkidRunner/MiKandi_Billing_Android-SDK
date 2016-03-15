@@ -231,5 +231,57 @@ public final class MiKandiUtils {
 		return checksum.equalsIgnoreCase(newChecksum);
 	}
 
-	
+	public static String getCdnImage(String baseUrl, int mViewWidth, int mViewHeight) {
+		if (baseUrl == null) {
+			Log.w("CDN URL", "is null");
+			return baseUrl;
+		}
+		if (baseUrl.contains("s3.amazonaws.com")) {
+			final StringBuilder sb = new StringBuilder("http://imageservice-a.mikandicdn.com");
+			boolean succeeded = false;
+			try {
+				URL original = new URL(baseUrl);
+				String stem = original.getHost().replace("s3.amazonaws.com", "");
+				if (stem.length() > 0 && stem.charAt(stem.length() - 1) == '.') stem = stem.substring(0, stem.length() - 1);
+				if (stem.length() > 0) {
+					sb.append('/').append(stem); 
+				}
+				sb.append(original.getPath());
+				char sep = '?';
+				if (original.getQuery() != null) {
+					sb.append(sep).append(original.getQuery());
+					sep = '&';
+				}
+				sb.append(sep).append("w=").append(mViewWidth);
+				sep = '&';
+				sb.append(sep).append("h=").append(mViewHeight);
+				succeeded = true;
+			} catch (MalformedURLException e) {}
+			//if (succeeded) Log.i("CDN URL", sb.toString());
+			//else Log.i("CDN URL", "Failed: " + baseUrl);
+			return succeeded ? sb.toString() : baseUrl;
+		}
+		if (baseUrl.contains("d28dazj2ply6nc.cloudfront.net")) {
+			final StringBuilder sb = new StringBuilder("http://imageservice-a.mikandicdn.com/mikandicatalog");
+			boolean succeeded = false;
+			try {
+				URL original = new URL(baseUrl);
+				sb.append(original.getPath());
+				char sep = '?';
+				if (original.getQuery() != null) {
+					sb.append(sep).append(original.getQuery());
+					sep = '&';
+				}
+				sb.append(sep).append("w=").append(mViewWidth);
+				sep = '&';
+				sb.append(sep).append("h=").append(mViewHeight);
+				succeeded = true;
+			} catch (MalformedURLException e) {}
+			//if (succeeded) Log.i("CDN URL", sb.toString());
+			//else Log.i("CDN URL", "Failed: " + baseUrl);
+			return succeeded ? sb.toString() : baseUrl;
+		}
+		Log.i("CDN URL", "Failed: " + baseUrl);
+		return baseUrl;
+	}
 }
