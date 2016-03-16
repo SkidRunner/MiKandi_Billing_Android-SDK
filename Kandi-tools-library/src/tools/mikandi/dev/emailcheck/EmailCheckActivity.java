@@ -13,7 +13,7 @@ import android.widget.TextView;
 import tools.mikandi.dev.login.*;
 
 /**
- * 
+ * Unused but may be added later. 
  * @author Mike Docherty - March 2014
  */
 

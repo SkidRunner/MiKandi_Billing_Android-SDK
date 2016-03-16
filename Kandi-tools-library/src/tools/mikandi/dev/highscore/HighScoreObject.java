@@ -1,4 +1,6 @@
-package tools.mikandi.dev.highscore;
+/*
+ * package tools.mikandi.dev.highscore;
+
 
 import java.util.Map;
 
@@ -39,7 +41,6 @@ public class HighScoreObject implements IReturnable, Comparable {
 	 *   		     5    score
 	 *   			 6    score
 	 *   
-	 */
 	
 	SortOrder mSort = null;
 		
@@ -116,10 +117,12 @@ public class HighScoreObject implements IReturnable, Comparable {
 		}
 	}
 
+	
 	@Override
-	public IParser<HighScoreObject> getParser() {
-		return new AutoParser<HighScoreObject>();
+	public IParser<?> getParser() {
+		return null;
 	}
+
 
 	@Override
 	public String getUri(Map<String, String> args) {
@@ -127,6 +130,8 @@ public class HighScoreObject implements IReturnable, Comparable {
 		return null;
 	}
 
+	
+	
 	@Override
 	public IReturnableCache<? extends IReturnable> getCache(Context context) {
 		// TODO Auto-generated method stub
@@ -134,3 +139,4 @@ public class HighScoreObject implements IReturnable, Comparable {
 	}
 		
 }
+*/

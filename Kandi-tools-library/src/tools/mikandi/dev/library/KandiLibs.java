@@ -41,7 +41,7 @@ import tools.mikandi.dev.validation.ValidateUserReturnable;
  */
 public class KandiLibs {
 
-	public static final boolean debug = true;
+	public static final boolean debug = false;
 	public static final String sAppId = "appid";
 	public static final String sSecret = "secretkey";
 	public static final String sPublisherId = "publisherid"; 
@@ -53,13 +53,6 @@ public class KandiLibs {
 	private static OnAuthorizeInAppListener sAuthInAppListener = null;	
 	private static OnFullScreenAdDisplayedListener sOnFullScreenAdDisplayedListener = null;
 	private static onBuyGoldReturnListener sOnBuyGoldReturn = null;
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	/**
@@ -121,9 +114,6 @@ public class KandiLibs {
 	
 	public static final void requestFullScreenAd(Activity a, OnFullScreenAdDisplayedListener l , String[] niches) { 
 		Intent mIntent = new Intent(a, FullScreenAd.class); 
-		
-		
-		
 		
 		if (niches == null | niches.length < 1) { 
 			requestFullScreenAd(a, l);
@@ -484,7 +474,6 @@ public class KandiLibs {
 			}
 			purchaseHistoryHandler(mTokens);
 			
-			
 			} else {
 				if (debug) Log.e("ListPurchaseTask", "json is null");
 			}
@@ -539,7 +528,7 @@ public class KandiLibs {
 		try
 		{
 			new DefaultJSONAsyncTask<AccountBalancePoint>
-				(AccountBalancePoint.class, c	,new OnJSONResponseLoadedListener<AccountBalancePoint>(){
+				(AccountBalancePoint.class, c,new OnJSONResponseLoadedListener<AccountBalancePoint>(){
 
 					@Override
 					public void onJSONLoaded(

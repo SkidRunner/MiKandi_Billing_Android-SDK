@@ -41,7 +41,7 @@ public class FullScreenAd extends Activity   {
 	boolean adDebug = true;
 	
 	public void finish() {
-		if (wv != null)	wv.loadUrl("about:blank");
+		if (wv != null)	wv.loadUrl("about:blank"); 
 		if (this.mListener != null) this.mListener.AdFinished(); 
 		UserInfoObject.getInstance(this).setFullScreenAdListener(null);   // remove listener once closed. 
 		super.finish();
@@ -54,13 +54,11 @@ public class FullScreenAd extends Activity   {
 		
 		try {
 		
-		
-		
-		if (android.os.Build.VERSION.SDK_INT > 10){
-			if (getActionBar() != null){
-		   		getActionBar().hide();
+			if (android.os.Build.VERSION.SDK_INT > 10){
+				if (getActionBar() != null){
+					getActionBar().hide();
     			}
-		}
+			}
 		
 		setContentView(R.layout.fullscreen);
 		rl = (RelativeLayout) findViewById(R.id.relative_layout);
@@ -79,8 +77,8 @@ public class FullScreenAd extends Activity   {
 		wv.setHorizontalScrollBarEnabled(false);
 		wv.getSettings().setLoadWithOverviewMode(true);
 		wv.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-	        wv.getSettings().setUseWideViewPort(true);
-	        wv.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
+	    wv.getSettings().setUseWideViewPort(true);
+	    wv.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
 	   	wv.getSettings().setJavaScriptEnabled(true);
 
 	  	c = (Context) this;
@@ -121,8 +119,8 @@ public class FullScreenAd extends Activity   {
 	    	// add niche to url; 
 	    	url = new StringBuilder(url).append("&").append(nicheIdVar).append("=").append(niche).toString();
 		    if (adDebug) Toast.makeText(this, "Showing niche : " + niche , Toast.LENGTH_SHORT).show(); 
-
 	    }
+	    
 	    if (adDebug) Log.i("Opening url to" , url);
 	    wv.loadUrl(url);	
 	    v.setOnClickListener(new OnClickListener() {
@@ -138,8 +136,6 @@ public class FullScreenAd extends Activity   {
 	    }
 	}
 
-
-	
 
 	@SuppressLint("ResourceAsColor")
 	@Override
@@ -159,14 +155,13 @@ public class FullScreenAd extends Activity   {
 		
 		@JavascriptInterface
 		public void launch(String url) {
-			Log.i("WebAppInterface" , "url called" + url);
+			Log.i("WebAppInterface" , "url called: " + url);
 			Uri u = Uri.parse(url);
 			
 			if (u == null){
 				Toast.makeText(mContext, "Bad url, can't open " , Toast.LENGTH_SHORT).show();
 				finish(); 
 			}
-			
 			mContext.startActivity(new Intent(Intent.ACTION_VIEW, u));
 		}
 	}

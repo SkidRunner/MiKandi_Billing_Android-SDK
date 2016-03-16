@@ -54,13 +54,13 @@ public class LoginAsyncTask extends JSONAsyncTask<UserLoginReturnable>
 		//check for tokens
 		if (ret.getTokens() == null) 
 		{
-		loginResult =
-			new LibraryLoginResult(LibraryLoginResult.RESULT_LOGIN_SUCCESS, ret.getUserId(), null
-			, ret.getAuthHash(), ret.getAuthExpires(), ret.getUsername());
-					
+			loginResult =
+					new LibraryLoginResult(LibraryLoginResult.RESULT_LOGIN_SUCCESS, ret.getUserId(), null
+							, ret.getAuthHash(), ret.getAuthExpires(), ret.getUsername());
 		}
-		else {
-			// Sucessful login but with no tokens
+		else 
+		{
+			// Sucessful login but with tokens
 			loginResult =
 				new LibraryLoginResult(LibraryLoginResult.RESULT_LOGIN_SUCCESS
 						, ret.getUserId()
@@ -69,6 +69,7 @@ public class LoginAsyncTask extends JSONAsyncTask<UserLoginReturnable>
 						, ret.getAuthExpires()
 						, ret.getUsername());
 		}
+		
 		
 		LoginStorageUtils.setLogin(mContext, loginResult);
 		for (final OnLoginResultListener listener : mListeners) listener.onLoginSuccess(loginResult);

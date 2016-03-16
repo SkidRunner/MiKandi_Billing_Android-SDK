@@ -135,7 +135,7 @@ public class LoginActivity extends Activity implements OnLoginResultListener, On
 		args.put(AAppReturnable.USERNAME, username);
 		args.put(AAppReturnable.APP_ID, appId);
 		final LoginAsyncTask task = new LoginAsyncTask(args, this);
-		task.addListener((OnLoginResultListener) this); // <--------------- does it need casting?
+		task.addListener((OnLoginResultListener) this); 
 	    task.execute();
 	}
 	

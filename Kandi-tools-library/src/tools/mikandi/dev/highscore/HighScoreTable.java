@@ -1,4 +1,4 @@
-package tools.mikandi.dev.highscore;
+/*package tools.mikandi.dev.highscore;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,6 +14,7 @@ import tools.mikandi.dev.highscore.HighScoreUtils.SortOrder;
 import tools.mikandi.dev.inapp.AccountBalancePoint;
 import tools.mikandi.dev.passreset.OnJSONResponseLoadedListener;
 import tools.mikandi.dev.utils.UserInfoObject;
+import tools.mikandi.dev.highscore.*;
 
 public class HighScoreTable implements OnJSONResponseLoadedListener<HighScoreObject> {
 
@@ -28,9 +29,7 @@ public class HighScoreTable implements OnJSONResponseLoadedListener<HighScoreObj
 		
 		mAppId = UserInfoObject.getInstance(c).getAppId();
 		mPublicId = UserInfoObject.getInstance(c).getPublisherId();
-		
-		
-		
+	
 	}
 
 	public void addScore(HighScoreObject h) { 
@@ -84,4 +83,4 @@ public class HighScoreTable implements OnJSONResponseLoadedListener<HighScoreObj
 
 	
 }
-
+*/
