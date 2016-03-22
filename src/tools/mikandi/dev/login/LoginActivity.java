@@ -52,10 +52,6 @@ public class LoginActivity extends Activity implements OnLoginResultListener, On
 	int errorCounter;
 	String mAppId, mSecret;
 
-	
-	
-	
-	
 	protected void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -63,12 +59,6 @@ public class LoginActivity extends Activity implements OnLoginResultListener, On
 		
 		Intent lIntent = getIntent();
 
-		
-		boolean isConnected = KandiLibs.isConnectedToNetwork(this); 
-		if (!isConnected) { 
-			handleFailed(); 
-		}
-		
 		mSecret = lIntent.getStringExtra("secretkey");
 		mAppId = lIntent.getStringExtra("appid");
 		// ^^^^^^^^^ needing the stuff in drawables ...
@@ -92,20 +82,9 @@ public class LoginActivity extends Activity implements OnLoginResultListener, On
 
 	}
 
-	private void handleFailed() {
-		setResult(KandiLibs.LIBRARY_LOGIN_RESULT_FAILED); 
-		finish(); 
-	}
-
 	@Override
 	public void onBackPressed() {
 		dismissDialog();
-		final Context context = getApplicationContext();
-		if (LoginStorageUtils.isLoggedIn(context)) { 
-			setResult(KandiLibs.LIBRARY_LOGIN_RESULT_SUCCESSFUL);
-		} else {
-			setResult(KandiLibs.LIBRARY_LOGIN_RESULT_UNSUCESSFUL);
-		}
 		this.finish();
 	}
 
@@ -156,7 +135,7 @@ public class LoginActivity extends Activity implements OnLoginResultListener, On
 		args.put(AAppReturnable.USERNAME, username);
 		args.put(AAppReturnable.APP_ID, appId);
 		final LoginAsyncTask task = new LoginAsyncTask(args, this);
-		task.addListener((OnLoginResultListener) this); 
+		task.addListener((OnLoginResultListener) this); // <--------------- does it need casting?
 	    task.execute();
 	}
 	
@@ -187,7 +166,6 @@ public class LoginActivity extends Activity implements OnLoginResultListener, On
 		dismissDialog();
 		final Context context = getApplicationContext();
 		LoginStorageUtils.setLogin(context, result);
-		setResult(KandiLibs.LIBRARY_LOGIN_RESULT_SUCCESSFUL);
 		this.finish();
 	}
 
@@ -199,9 +177,9 @@ public class LoginActivity extends Activity implements OnLoginResultListener, On
 	 */
 	public void onLoginFailed(int errorCode) {
 		dismissDialog();
-		handleFailed();
-		// Toast.makeText(getApplicationContext(), "Login failed check network and try again!", Toast.LENGTH_LONG).show();
-		Log.e("Login Failed (not just unsucessful) : " , "Networking issue , check connectivity and try again"); 
+
+		Toast.makeText(getApplicationContext(), "Login failed check network and try again!", Toast.LENGTH_LONG).show();
+		Log.e("Login Failed (not just unsucessful) : " , "error code : " + errorCode ); 
 	}
 
 	
@@ -229,12 +207,15 @@ public class LoginActivity extends Activity implements OnLoginResultListener, On
 				loginActivity_field_Password.setText("");
 				loginActivity_field_Username.setError("Incorrect credentials");
 				loginActivity_field_Password.setError("Incorrect credentials");
+				
+				
 				break;
 			default:
 				if (isDebug)
 					Log.i("Login Activity", "something went wrong, error code "
 							+ resultCode);
 				break;
+				
 			
 			}
 		}

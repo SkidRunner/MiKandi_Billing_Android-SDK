@@ -30,15 +30,11 @@ public class ValidatePurchaseReturnable extends AAppReturnable {
 	 */
 	@Field(type = Field.Type.LIST   , json_name = "purchases")
 	public List<String> purchases; 
-	
-	public boolean purchased = false; 
-	
-	
+		
 	public boolean isPurchased() {
-		return purchased;
+		return true;
 	}
 
-	
 	public List<String> getPurchases() { 
 		return purchases;
 	}
@@ -83,7 +79,6 @@ public class ValidatePurchaseReturnable extends AAppReturnable {
 	private class ValidatePurchaseReturnableReturnableParser implements IParser<ValidatePurchaseReturnable> {
 		private long sTotalTime = 0;
 		private String sPurchases  = "purchases";
-		private String sPurchased = "purchased";
 		
 		@Override
 		public <T> boolean parse(JSONObject jo, T empty) {
@@ -94,7 +89,6 @@ public class ValidatePurchaseReturnable extends AAppReturnable {
 			ValidatePurchaseReturnable obj = (ValidatePurchaseReturnable) empty;
 			try {
 				obj.purchases = p.loadStringList(sPurchases ,(String[]) null);
-				obj.purchased = p.loadBoolean(sPurchased, false);
 			}
 			catch (Exception E) { 
 				ret = false; 

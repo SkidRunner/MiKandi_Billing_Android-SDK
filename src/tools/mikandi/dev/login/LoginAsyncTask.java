@@ -30,10 +30,6 @@ public class LoginAsyncTask extends JSONAsyncTask<UserLoginReturnable>
 
 	protected void onPostExecute(JSONResponse<UserLoginReturnable> result)
 	{
-		if (result == null) { 
-			for (final OnLoginResultListener listener : mListeners) listener.onLoginFailed(-1);
-		}
-		
 		final int resultCode = result.getCode();
 		
 		if (resultCode == 493 || resultCode == 492) { 
@@ -58,13 +54,13 @@ public class LoginAsyncTask extends JSONAsyncTask<UserLoginReturnable>
 		//check for tokens
 		if (ret.getTokens() == null) 
 		{
-			loginResult =
-					new LibraryLoginResult(LibraryLoginResult.RESULT_LOGIN_SUCCESS, ret.getUserId(), null
-							, ret.getAuthHash(), ret.getAuthExpires(), ret.getUsername());
+		loginResult =
+			new LibraryLoginResult(LibraryLoginResult.RESULT_LOGIN_SUCCESS, ret.getUserId(), null
+			, ret.getAuthHash(), ret.getAuthExpires(), ret.getUsername());
+					
 		}
-		else 
-		{
-			// Sucessful login but with tokens
+		else {
+			// Sucessful login but with no tokens
 			loginResult =
 				new LibraryLoginResult(LibraryLoginResult.RESULT_LOGIN_SUCCESS
 						, ret.getUserId()
@@ -73,7 +69,6 @@ public class LoginAsyncTask extends JSONAsyncTask<UserLoginReturnable>
 						, ret.getAuthExpires()
 						, ret.getUsername());
 		}
-		
 		
 		LoginStorageUtils.setLogin(mContext, loginResult);
 		for (final OnLoginResultListener listener : mListeners) listener.onLoginSuccess(loginResult);
