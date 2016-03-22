@@ -1,5 +1,11 @@
 
-MiKandi in-app library v1.0.3
+MiKandi in-app library v1.0.4
+
+v1.0.4
+- Added connectivity check to each library query that requires a network connection. 
+- Library now requires ACCESS_NETWORK_STATE 
+- Fixed bug in checkpurchase 
+- Added more updates to stored local tokens. 
 
 v1.0.3
 - Added publisher id and appid to full screen ad urls. 
