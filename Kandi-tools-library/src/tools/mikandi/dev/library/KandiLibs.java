@@ -3,6 +3,7 @@ package tools.mikandi.dev.library;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -57,6 +58,32 @@ public class KandiLibs {
 	private static OnAuthorizeInAppListener sAuthInAppListener = null;	
 	private static OnFullScreenAdDisplayedListener sOnFullScreenAdDisplayedListener = null;
 	private static onBuyGoldReturnListener sOnBuyGoldReturn = null;
+
+	/**
+	 * These are the login activity static ints. 
+	 * The ID is used as the the request code 
+	 *	The RESULT int's are returned in the login int. 
+	 *
+	 *	Developers should be sure to handle these, and be sure to handle results. 
+	 *  - Unsucessful generally means login credentials are correct. 
+	 *  - Login Failed means that their is a networking issue or the device is unable to connect to our mikandi servers. 
+	 *  
+	 */
+	public static int LIBRARY_LOGIN_ID = 0x0001; 
+	public static int LIBRARY_LOGIN_RESULT_SUCCESSFUL = 0x0002;
+	public static int LIBRARY_LOGIN_RESULT_UNSUCESSFUL = 0x0003;
+	public static int LIBRARY_LOGIN_RESULT_FAILED = 0x0004;
+
+	public static int LIBRARY_BUYGOLD_ID = 0x0011;
+	public static int LIBRARY_BUYGOLD_RESULT_UNSUCESSFUL = 0x0012;
+	public static int LIBRARY_BUYGOLD_RESULT_FAILED = 0x0013;
+	public static int LIBRARY_BUYGOLD_RESULT_SUCESSFUL = 0x0014;
+	public static int LIBRARY_BUYGOLD_RESULT_ABANDOND = 0x0015;
+	
+	public static int LIBRARY_AD_ID = 0x0031; 
+	public static int LIBRARY_AD_RESULT_CLICKED = 0x0032;
+	public static int LIBRARY_AD_RESULT_CLOSED = 0x0033;
+	public static int LIBRARY_AD_SEEN = 0x0034; 
 	
 	/**
 	 * 
@@ -102,42 +129,40 @@ public class KandiLibs {
 		String url = "https://mikandi.com/buygold";
 		Intent mIntent = new Intent(Intent.ACTION_VIEW);
 		mIntent.setData(Uri.parse(url));
-		act.startActivity(mIntent);
+		act.startActivityForResult(mIntent, LIBRARY_BUYGOLD_ID); 
 	}
 
 	// -------------------------------------------------------- Buy Gold Activity End  --------------------------------------------------------------
 
 	public static String adListener = "fullScreenadlistener";
 	public static final void requestFullScreenAd(Activity a, OnFullScreenAdDisplayedListener l) { 
+		// if connected to the internet.
 		Intent mIntent = new Intent(a, FullScreenAd.class);
-		a.startActivity(mIntent);
+		a.startActivityForResult(mIntent, LIBRARY_AD_ID);
 	}
 	
 	// ------------------------------------------------------Login Activity----------------------------------------------------------------------------------
 	/**
-	 * this is the function that is to be started that starts the login activity, no call back is needed as there is a within this 
-	 * that 
+	 * 
+	 * This starts the login, 
+	 * 
 	 * @param act
 	 * @param uio
 	 * @param loginListener
 	 */
 	public static final void requestLogin(final Activity act, UserInfoObject uio) {
 
-		if (debug)
-			Log.i("DEBUGGING XML ERROR: ", "Request Login in library");
-
+		if (debug) Log.i("DEBUGGING XML ERROR: ", "Request Login in library");
 		String mSecret = uio.getSecretKey();
 		String mAppId = uio.getAppId();
-
 		if (debug) Log.i("DEBUGGING XML ERROR: ", "Secret key  " + mSecret	+ " and appid " + mAppId);
 		Intent mIntent = new Intent(act, LoginActivity.class);
 		if (debug) Log.i("DEBUGGING XML ERROR: ", "Login Intent created");
 		mIntent.putExtra(sSecret, mSecret);
 		mIntent.putExtra(sAppId, mAppId);
-		if (debug)
-			Log.i("DEBUGGING XML ERROR: ", "starting login activity");
-		act.startActivity(mIntent);
-
+		if (debug) Log.i("DEBUGGING XML ERROR: ", "starting login activity");
+		act.startActivityForResult(mIntent, LIBRARY_LOGIN_ID);
+	
 	}
 	// ---------------------------------------------- Login Activity End----------------------------------------------------------------------------
 	
@@ -163,6 +188,7 @@ public class KandiLibs {
 		return isLoggedIn;
 	}
 	// ----------------------------------------------Validate purchase-----------------------------------------------------------------------------
+	
 	/**
 	 * This function is to be called after the AuthInAppPurchase call, as an additional 
 	 * validation, this provides a positive response if the purchase has been validated 
@@ -181,6 +207,11 @@ public class KandiLibs {
 		LibraryLoginResult lr = uio.getLoginResult();
 		Context context = uio.getContext();
 
+		if (!isConnectedToNetwork(context)) { 
+			sValidate.FailedValidation();
+			return;
+		}
+		
 		if (lr == null) {
 			if (debug)
 				Log.e("Request Validate In App ", "login Result is null!");
@@ -198,7 +229,6 @@ public class KandiLibs {
 			args.put(AAppReturnable.AUTH_HASH, lr.getUserAuthHash());
 			args.put(AAppReturnable.TOKEN, mToken);
 			args.put(AAppReturnable.AUTH_EXPIRES, lr.getUserAuthExpires());
-	
 			new DefaultJSONAsyncTask<ValidatePurchaseReturnable>(
 					ValidatePurchaseReturnable.class,
 					context,
@@ -206,17 +236,14 @@ public class KandiLibs {
 						@Override
 						public void onJSONLoaded(
 								JSONResponse<ValidatePurchaseReturnable> jsonResponse) {
-							if (debug)
-								Log.i("Validate response is : ", ""
-										+ jsonResponse.toString());
-
-							ValidatePurchaseReturnable mVPR = jsonResponse
-									.getOne();
-
+							
+							if (jsonResponse == null) { 
+								validateResponseHandler(null);
+								return;
+							}
+							//json response may be null here: 
 							validateResponseHandler(jsonResponse);
-							if (debug)
-								Log.i("Returned ValidatePurchaseReturnable",
-										"responese : " + mVPR.toString());
+							
 						}
 					}, args).execute();
 		} catch (Exception E) {
@@ -225,17 +252,22 @@ public class KandiLibs {
 	}
 
 	protected static void validateResponseHandler(JSONResponse<ValidatePurchaseReturnable> jsonResponse) {
-
-		JSONResponse<ValidatePurchaseReturnable> myResponse = jsonResponse;
-		String resp = myResponse.toString(); 
-		
-		if (debug) Log.e("VALIDATEPURCHASE RESPONSE IS", "" + resp);
-		if (myResponse.getCode() != 200) {
-			if (debug) Log.e("Kandilibs/Networking error", myResponse.getCode() + " returned");
+		if (jsonResponse == null) {
+			sValidate.FailedValidation();
+			return; 
+		}
+		ValidatePurchaseReturnable vpr = jsonResponse.getOne(); 
+		if (debug) Log.e("VALIDATEPURCHASE RESPONSE IS", "" + jsonResponse);
+		if (jsonResponse.getCode() != 200) {
+			if (debug) Log.e("Kandilibs/Networking error", jsonResponse.getCode() + " returned");
 			sValidate.FailedValidation();
 		} else {
+			if (vpr.isPurchased()) { 
+				sValidate.PositiveValidation();
+			} else { 
+				sValidate.NegativeValidation();
+			}
 			if (debug) Log.i("Validated Response : ","" + jsonResponse.getCode());
-			sValidate.PositiveValidation();
 		}
 	}
 	// ------------------------------------------Validate PurchaseEnd--------------------------------------------------------------------------------
@@ -270,15 +302,21 @@ public class KandiLibs {
 	public static void AuthInAppPuchase(UserInfoObject uio ,String mToken, String mDescription, String mAmount, 
 			 OnAuthorizeInAppListener authInAppListener){
 		sAuthInAppListener = authInAppListener;
+		
+		if (!isConnectedToNetwork(uio.getContext())) { 
+			sAuthInAppListener.Failed(-1);
+			return; 
+		}
+		
 		Context context = uio.getContext();
 		LibraryLoginResult lr = uio.getLoginResult();
 		
 		if (lr == null) {
 			if (debug) Log.e("authInAppPurchase " , "error! login result is null");
-			if (debug)  Log.e("In-App purchase Error" , "User not logged in ! ");
+			if (debug) Log.e("In-App purchase Error" , "User not logged in ! ");
 			Toast.makeText(uio.getContext(), "Need to login first! ", Toast.LENGTH_LONG).show();
 			return;
-			}
+		}
 
 		try {
 		
@@ -336,6 +374,9 @@ public class KandiLibs {
 	 * This is a function that returns a boolean value representing wheather or not the given token has been purchased by the current 
 	 * user. This is the easier and quickest way to check to see if a user has purchased user content! 
 	 * 
+	 * This checks the stored login details , then checks the network and retreives the list. 
+	 * 
+	 * 
 	 * @param uio	= UserInfoObject, an instance should be collected previously and passed into this function! 
 	 * @param token = String Id of the purchase
 	 * @return
@@ -361,6 +402,12 @@ public class KandiLibs {
 			}
 		}
 		try {
+			
+			if (!isConnectedToNetwork(uio.getContext())) { 
+				
+				return getOwned();
+			}
+			
 		requestPurchaseHistory(uio, new onPurchaseHistoryListener() {
 			
 			@Override
@@ -425,6 +472,11 @@ public class KandiLibs {
 			return;
 		}
 		else {
+			if (!isConnectedToNetwork(context)) { 
+				sPurchaseHistory.onFailedHistoryRetrieved();
+				return;
+			}
+			
 			if (debug) Log.i("KandiLibs - RequestPurchaseHistory","Instantiating variables ");
 				HashMap<String, String> args = new HashMap<String, String>();
 				args.put(AAppReturnable.APP_ID, uio.getAppId());
@@ -458,15 +510,14 @@ public class KandiLibs {
 			
 			if (mTokens != null) 
 			{ 
-			String[] updateTokens = new String[mTokens.size()];
-			updateTokens = mTokens.toArray(updateTokens);
-			LoginStorageUtils.refreshToken(uio.getContext(), updateTokens);
+				String[] updateTokens = new String[mTokens.size()];
+				updateTokens = mTokens.toArray(updateTokens);
+				LoginStorageUtils.refreshToken(uio.getContext(), updateTokens);
 			}
-			purchaseHistoryHandler(mTokens);
-			
-			
+				purchaseHistoryHandler(context , mTokens);
 			} else {
 				if (debug) Log.e("ListPurchaseTask", "json is null");
+				sPurchaseHistory.onFailedHistoryRetrieved();
 			}
 		}
 					}, args).execute();
@@ -483,10 +534,11 @@ public class KandiLibs {
 	 * 
 	 * @param mTokens
 	 */
-	protected static void purchaseHistoryHandler(List<String> mTokens) {
+	protected static void purchaseHistoryHandler(Context ctx, List<String> mTokens) {
 		if (mTokens != null) {
 			if (debug) Log.i("printing out tokens" , "tokens :" + mTokens.toString());
 			sPurchaseHistory.onSucessfulHistoryRetrieved(mTokens);
+			LoginStorageUtils.refreshToken(ctx, mTokens.toArray(new String[mTokens.size()]));
 		} else {
 			sPurchaseHistory.onFailedHistoryRetrieved();
 		}
@@ -504,10 +556,15 @@ public class KandiLibs {
 		final Context c = u.getContext(); 
 		LibraryLoginResult lr = u.getLoginResult();
 		
+		if (!isConnectedToNetwork(c)) { 
+			l.retreivedGold(-2);
+			return; 
+		}
+		
 		if (lr == null) { 
-		Toast.makeText(c, "Please log in first" , Toast.LENGTH_SHORT).show();
-		l.retreivedGold(-2);
-		return;
+			Toast.makeText(c, "Please log in first" , Toast.LENGTH_SHORT).show();
+			l.retreivedGold(-2);
+			return;
 		}
 		
 		HashMap<String, String> args = new HashMap<String, String>();
@@ -519,12 +576,13 @@ public class KandiLibs {
 		try
 		{
 			new DefaultJSONAsyncTask<AccountBalancePoint>
-				(AccountBalancePoint.class, c	,new OnJSONResponseLoadedListener<AccountBalancePoint>(){
-
+				(AccountBalancePoint.class, c ,new OnJSONResponseLoadedListener<AccountBalancePoint>(){
 					@Override
 					public void onJSONLoaded(
 							JSONResponse<AccountBalancePoint> jsonResponse) {
-						
+						if (jsonResponse == null) {
+							l.retreivedGold(-2);
+						}
 						if (jsonResponse.getCode() != 200) { 
 							l.retreivedGold(-1);
 						} else { 
@@ -537,9 +595,7 @@ public class KandiLibs {
 		catch (Exception e)
 		{
 			if (debug) Log.e("Gold balance Retreiveal " , " ", e);
-		}
-		
-		
+		}	
 	}
 	
 	// ----------------------------------------------- End  Gold Retreival --------------------------------------------------------
@@ -568,8 +624,14 @@ public class KandiLibs {
 		}
 			
 		Context ctx = uio.getContext();
-		LibraryLoginResult lr = uio.getLoginResult();
 		
+		if (!isConnectedToNetwork(ctx)) { 
+			sOnUserVerification.userVerifyFailed(-1);
+			return;
+		}
+		
+		
+		LibraryLoginResult lr = uio.getLoginResult();
 		if (debug) Log.i("Printing LoginResult", "" + lr);
 		final HashMap<String, String> hm = new HashMap<String, String>();
 		hm.put(AAppReturnable.USER_ID, lr.getUserIdString());
@@ -593,8 +655,6 @@ public class KandiLibs {
 									isValid(true, jsonResponse.getCode());
 								 else 
 									isValid(false, jsonResponse.getCode());
-								
-
 								}
 								else { // if json response is null
 									if (debug) Log.e("ValidateUserReturnable", "jsonResponse is null");
@@ -648,7 +708,7 @@ public class KandiLibs {
 		return ownedBoolean;
 	}
 	
-	public boolean isConnectedToNetwork(Context context) { 
+	public static boolean isConnectedToNetwork(Context context) { 
 			boolean ret = false;
 			
 			ConnectivityManager cm =
