@@ -1,10 +1,9 @@
-
 MiKandi in-app library v1.0.4
-
 
 v1.0.5
 - Added gradle build file
 - added gradlew and gradlew.bat for easy build 
+- Removed duplicate files, the result of Mike's poor merging abilities 
 
 v1.0.4
 - Added connectivity check to each library query that requires a network connection. 
