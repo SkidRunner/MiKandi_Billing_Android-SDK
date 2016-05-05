@@ -1,6 +1,11 @@
 
 MiKandi in-app library v1.0.4
 
+
+v1.0.5
+- Added gradle build file
+- added gradlew and gradlew.bat for easy build 
+
 v1.0.4
 - Added connectivity check to each library query that requires a network connection. 
 - Library now requires ACCESS_NETWORK_STATE 
